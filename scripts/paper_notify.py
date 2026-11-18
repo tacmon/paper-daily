@@ -238,7 +238,7 @@ def run_gui(args):
                 self.research_buttons.append(button)
                 research.pack_start(button, True, True, 0)
             outer.pack_start(research, False, False, 0)
-            journal = Gtk.Button(label='写一句总结 · 先看 AI 润色')
+            journal = Gtk.Button(label='写一句总结 · 可直接保存')
             journal.get_style_context().add_class('secondary'); journal.set_margin_top(10)
             journal.connect('clicked', lambda *_: self.open_research('journal'))
             self.research_buttons.append(journal)

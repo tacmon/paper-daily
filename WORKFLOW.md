@@ -15,7 +15,7 @@
 5. 制作`background.md`、`reading.md`、`notes.md`及可离线阅读的`notes.html`。调查问题沿革、发表时机构、前驱和后续工作；不凭姓名推断师生关系或作者贡献。以“领域→问题与模型→方法与例子→理论与实验→局限与研究联系”为主线。
 6. 制作可编辑`slides.pptx`、逐页讲稿、10–15分钟中文`video.mp4`和`subtitles.srt`。需要助手所接工具、PPT渲染器和TTS；仓库没有全自动的PPT作者。不要把关键词列表当作可读课件。可用`scripts/render_lesson.py`合成已有画面和讲稿，见[集成说明](docs/integrations.md)。
 7. 可选做有限预算机制实验，明确是示意、局部还是完整复现。核验PPT、全片解码、音轨、字幕、时长；实际听音后才能宣称听感验收。字段反映事实，失败不标ready。可用并已授权时导入Zotero，保留成功信息或失败原因。
-8. 在`reading_log.md`追加一行，AI参考句与用户最终句分开；后者留空，已有内容保留。用户可通过中控“写一句总结”输入原话，先看AI润色稿，再亲自确认。阅读批注不能自动转成最终句。
+8. 在`reading_log.md`追加一行，AI参考句与用户最终句分开；后者留空，已有内容保留。用户可通过中控“写一句总结”输入原话并直接保存，或先看AI润色稿再亲自确认。阅读批注不能自动转成最终句。
 9. 更新`metadata.json`的产物路径与核验字段。全部通过后标`ready`，执行`python3 paper_library.py rebuild`及`python3 paper_library.py validate --require-ready`。这些是结构检查，不代替科学判断或实际听音。
 10. Linux桌面运行`/usr/bin/python3 scripts/paper_notify.py`启动或确认观察器。它只展示完整归档，不负责生成报告。系统应用入口的`--open`用于手动查看，不能替代自动观察器。
 

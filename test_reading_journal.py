@@ -47,6 +47,48 @@ class ReadingJournalTests(unittest.TestCase):
         with self.assertRaises(journal.Conflict):journal.confirm(request['id'],'润色',ready['revision'],self.root)
         self.assertIn('我在编辑器里改了',self.path.read_text())
 
+    def test_direct_save_preserves_words_other_rows_and_backup(self):
+        row=journal.entries(self.root)[0]
+        original='我的总结 | 保留\\符号\n<条件> & 不确定性'
+        saved=journal.save_original(row['paper_id'],row['date'],original,row['revision'],self.root)
+        self.assertEqual(saved['status'],'confirmed')
+        self.assertEqual(saved['mode'],'direct')
+        self.assertEqual(saved['original'],original)
+        self.assertEqual(saved['final'],original)
+        self.assertIsNone(saved['suggestion'])
+        self.assertEqual(journal.entries(self.root)[0]['final'],original)
+        self.assertEqual(journal.entries(self.root)[1]['final'],'别动这一句')
+        self.assertIn('AI 的参考',self.path.read_text())
+        self.assertIn('保留这些说明。',self.path.read_text())
+        self.assertEqual((self.root/'.reading-journal/history'/f"{saved['id']}.before.md").read_text(),self.original)
+        self.assertEqual(journal.entries(self.root)[0]['latest_request'],saved['id'])
+
+    def test_direct_save_rejects_stale_row_and_does_not_leave_request(self):
+        row=journal.entries(self.root)[0]
+        changed=self.original.replace('原来的一句','我在其他窗口新写的')
+        self.path.write_text(changed)
+        with self.assertRaises(journal.Conflict):
+            journal.save_original(row['paper_id'],row['date'],'旧页面文字',row['revision'],self.root)
+        self.assertEqual(self.path.read_text(),changed)
+        self.assertFalse(list((self.root/'.reading-journal/requests').glob('*.json')))
+
+    def test_direct_save_while_ai_pending_cannot_be_overwritten_by_late_proposal(self):
+        pending=self.request()
+        row=journal.entries(self.root)[0]
+        saved=journal.save_original(row['paper_id'],row['date'],pending['original'],row['revision'],self.root)
+        late=journal.suggest(pending['id'],'迟到的建议','解释',self.root)
+        with self.assertRaises(journal.Conflict):
+            journal.confirm(late['id'],late['suggestion'],late['revision'],self.root)
+        self.assertEqual(journal.entries(self.root)[0]['final'],pending['original'])
+        self.assertEqual(journal.entries(self.root)[0]['latest_request'],saved['id'])
+
+    def test_direct_save_rejects_empty_or_invalid_text(self):
+        row=journal.entries(self.root)[0]
+        for original in ('', '   ', None, 'x'*4001, '含\0空字符'):
+            with self.subTest(original=repr(original)[:30]), self.assertRaises(ValueError):
+                journal.save_original(row['paper_id'],row['date'],original,row['revision'],self.root)
+        self.assertEqual(self.path.read_text(),self.original)
+
     def test_other_row_edit_is_preserved_without_blocking(self):
         request=self.request();ready=journal.suggest(request['id'],'润色','说明',self.root)
         self.path.write_text(self.original.replace('别动这一句','另一行的新文本'))

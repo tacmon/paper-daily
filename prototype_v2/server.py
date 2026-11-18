@@ -60,7 +60,8 @@ class Handler(BaseHTTPRequestHandler):
         if path.startswith('/api/journal/request/'):
             try:
                 result=journal.get_request(path.rsplit('/',1)[-1],HERE.parent)
-                result['handoff']=journal.handoff(result['id'],HERE.parent)
+                if result['status']=='awaiting_ai':
+                    result['handoff']=journal.handoff(result['id'],HERE.parent)
                 return self.respond(200,result)
             except (ValueError,OSError) as exc:return self.respond(404,{'error':str(exc)})
         if path.startswith('/library/'):
@@ -98,7 +99,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if not self.allowed():return self.respond(403,{'error':'Only local same-origin requests are allowed'})
-        if self.path in ('/api/journal/request','/api/journal/confirm'):
+        if self.path in ('/api/journal/request','/api/journal/confirm','/api/journal/save-original'):
             try:
                 length=int(self.headers.get('Content-Length','0'))
                 if not 0<length<=40000:raise ValueError('Request size invalid')
@@ -108,6 +109,8 @@ class Handler(BaseHTTPRequestHandler):
                 if self.path.endswith('/request'):
                     result=journal.create_request(data.get('paper_id'),data.get('date'),data.get('original'),data.get('revision'),HERE.parent)
                     result['handoff']=journal.handoff(result['id'],HERE.parent)
+                elif self.path.endswith('/save-original'):
+                    result=journal.save_original(data.get('paper_id'),data.get('date'),data.get('original'),data.get('revision'),HERE.parent)
                 else:result=journal.confirm(data.get('id'),data.get('final'),data.get('revision'),HERE.parent)
                 return self.respond(200,result)
             except journal.Conflict as exc:return self.respond(409,{'error':str(exc)})

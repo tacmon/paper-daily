@@ -143,6 +143,35 @@ def suggest(request_id, suggestion, explanation, root=ROOT):
     return get_request(request_id, root)
 
 
+def _write_final(request, final, root):
+    """Caller holds the journal lock; preserve other rows and reject stale edits."""
+    source, rows = table(root)
+    row = locate(rows, request['paper_id'], request['date'])
+    if row['revision'] != request['base_revision']:
+        raise Conflict('表格中的这条记录已经改变，未覆盖。请核对下方记录后重新保存。')
+    updated = source[:row['start']]+' '+encode_cell(final)+' '+source[row['end']:]
+    backup = root/'.reading-journal/history'/f"{request['id']}.before.md"
+    library.atomic_text(backup, source)
+    if (root/'reading_log.md').read_text() != source:
+        raise Conflict('保存期间文件发生变化，未覆盖，请刷新后重试。')
+    library.atomic_text(root/'reading_log.md', updated)
+    request.pop('revision', None)
+    request.update(status='confirmed', final=final, confirmed_at=library.timestamp())
+    library.atomic_json(request_path(root, request['id']), request)
+
+
+def save_original(paper_id, date, original, expected, root=ROOT):
+    """Explicit user save, without an AI request or fabricated suggestion."""
+    original = validate_text(original, '原话：')
+    with locked(root):
+        row = locate(table(root)[1], paper_id, date)
+        request = dict(id=uuid.uuid4().hex, paper_id=paper_id, date=date, title=row['title'],
+            original=original, base_revision=expected, mode='direct', suggestion=None,
+            created_at=library.timestamp(), created_ns=time.time_ns())
+        _write_final(request, original, root)
+    return get_request(request['id'], root)
+
+
 def confirm(request_id, final, expected, root=ROOT):
     final = validate_text(final, '最终句：')
     with locked(root):
@@ -151,19 +180,7 @@ def confirm(request_id, final, expected, root=ROOT):
             return request
         if request['revision'] != expected or request['status'] != 'ready':
             raise Conflict('请先查看当前润色稿，再确认保存。')
-        source, rows = table(root)
-        row = locate(rows, request['paper_id'], request['date'])
-        if row['revision'] != request['base_revision']:
-            raise Conflict('表格中的这条记录已经改变，未覆盖。请刷新并重新发起润色。')
-        updated = source[:row['start']]+' '+encode_cell(final)+' '+source[row['end']:]
-        backup = root/'.reading-journal/history'/f'{request_id}.before.md'
-        library.atomic_text(backup, source)
-        if (root/'reading_log.md').read_text() != source:
-            raise Conflict('保存期间文件发生变化，未覆盖，请刷新后重试。')
-        library.atomic_text(root/'reading_log.md', updated)
-        request.pop('revision', None)
-        request.update(status='confirmed', final=final, confirmed_at=library.timestamp())
-        library.atomic_json(request_path(root, request_id), request)
+        _write_final(request, final, root)
     return get_request(request_id, root)
 
 
