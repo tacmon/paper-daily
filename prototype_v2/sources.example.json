@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "proxy": null,
+  "timeout_seconds": 18,
+  "cache_hours": 18,
+  "max_response_bytes": 32000000,
+  "host_intervals_seconds": {
+    "proceedings.iclr.cc": 1.0
+  },
+  "retain_unmatched_metadata": true,
+  "sources": [
+    {
+      "id": "arxiv-curriculum",
+      "kind": "arxiv",
+      "label": "arXiv · 自动课程",
+      "query": "all:\"reinforcement learning\" AND (all:curriculum OR all:\"goal-conditioned\" OR all:\"learning progress\")",
+      "limit": 35
+    },
+    {
+      "id": "arxiv-changing",
+      "kind": "arxiv",
+      "label": "arXiv · 非平稳环境",
+      "query": "all:\"reinforcement learning\" AND (all:nonstationary OR all:\"non-stationary\")",
+      "limit": 20
+    },
+    {
+      "id": "ml-journal",
+      "kind": "crossref",
+      "label": "Machine Learning · 期刊",
+      "issn": "1573-0565",
+      "query": "curriculum reinforcement learning",
+      "limit": 30
+    },
+    {
+      "id": "icml-2023",
+      "kind": "pmlr",
+      "label": "ICML 2023 · PMLR",
+      "volume": "202",
+      "year": 2023
+    },
+    {
+      "id": "iclr-2025",
+      "kind": "openreview",
+      "label": "ICLR 2025 · 录用论文",
+      "venue": "ICLR.cc/2025/Conference",
+      "year": 2025,
+      "limit": 500,
+      "fallback": {
+        "kind": "iclr_proceedings",
+        "label": "ICLR 官方论文集",
+        "year": 2025
+      }
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "schema_version": 1,
+  "recent_years": 2,
+  "pmlr_families": {
+    "ICML": "\\bICML\\b|International Conference on Machine Learning",
+    "CoRL": "\\bCoRL\\b|Conference on Robot Learning",
+    "COLT": "\\bCOLT\\b|Conference on Learning Theory",
+    "AISTATS": "\\bAISTATS\\b|Artificial Intelligence and Statistics",
+    "UAI": "\\bUAI\\b|Uncertainty in Artificial Intelligence",
+    "L4DC": "\\bL4DC\\b|Learning for Dynamics and Control"
+  },
+  "catalogues": [
+    {
+      "id": "catalog-pmlr",
+      "kind": "pmlr_catalog",
+      "label": "PMLR · 六个会议系列新卷",
+      "url": "https://proceedings.mlr.press/"
+    },
+    {
+      "id": "catalog-neurips",
+      "kind": "neurips_catalog",
+      "label": "NeurIPS · 正式论文集新卷",
+      "url": "https://proceedings.neurips.cc/"
+    },
+    {
+      "id": "catalog-iclr",
+      "kind": "iclr_catalog",
+      "label": "ICLR · 正式论文集新卷",
+      "url": "https://proceedings.iclr.cc/"
+    },
+    {
+      "id": "catalog-rlj",
+      "kind": "rlj_catalog",
+      "label": "RLJ/RLC · 新卷与预论文集",
+      "url": "https://rlj.org/volumes"
+    },
+    {
+      "id": "catalog-jmlr",
+      "kind": "jmlr_catalog",
+      "label": "JMLR · 从官方RSS发现新卷",
+      "url": "https://jmlr.org/jmlr.xml"
+    },
+    {
+      "id": "catalog-acl",
+      "kind": "acl_catalog",
+      "label": "ACL/EMNLP/Findings · 官方元数据新卷",
+      "url": "https://api.github.com/repos/acl-org/acl-anthology/git/trees/master"
+    }
+  ],
+  "feeds": [
+    {
+      "id": "program-neurips-{year}",
+      "kind": "program",
+      "label": "NeurIPS {year} · 公开会议名单",
+      "url": "https://neurips.cc/Downloads/{year}",
+      "year": "{year}",
+      "publication_status": "public_program",
+      "priority": 0
+    },
+    {
+      "id": "program-icml-{year}",
+      "kind": "program",
+      "label": "ICML {year} · 公开会议名单",
+      "url": "https://icml.cc/Downloads/{year}",
+      "year": "{year}",
+      "publication_status": "public_program",
+      "priority": 0
+    },
+    {
+      "id": "program-iclr-{year}",
+      "kind": "program",
+      "label": "ICLR {year} · 公开会议名单",
+      "url": "https://iclr.cc/Downloads/{year}",
+      "year": "{year}",
+      "publication_status": "public_program",
+      "priority": 0
+    },
+    {
+      "id": "jmlr-rss",
+      "kind": "jmlr_rss",
+      "label": "JMLR · 最新RSS",
+      "url": "https://jmlr.org/jmlr.xml",
+      "publication_status": "journal-article",
+      "priority": 0
+    },
+    {
+      "id": "tmlr-papers",
+      "kind": "tmlr",
+      "label": "TMLR · 官方已发表列表",
+      "url": "https://www.jmlr.org/tmlr/papers/",
+      "publication_status": "journal-article",
+      "priority": 0
+    },
+    {
+      "id": "ml-journal-recent",
+      "kind": "crossref_recent",
+      "label": "Machine Learning · 新入索引/更新",
+      "issn": "1573-0565",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "arxiv-recent-goals",
+      "kind": "arxiv_recent",
+      "label": "arXiv增量 · 目标条件与自动课程",
+      "query": "all:\"reinforcement learning\" AND (all:curriculum OR all:\"goal-conditioned\" OR all:\"learning progress\" OR all:\"task generation\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 1
+    },
+    {
+      "id": "arxiv-recent-change",
+      "kind": "arxiv_recent",
+      "label": "arXiv增量 · 非平稳与持续强化学习",
+      "query": "all:\"reinforcement learning\" AND (all:nonstationary OR all:\"non-stationary\" OR all:continual OR all:\"distribution shift\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 1
+    },
+    {
+      "id": "arxiv-recent-feedback",
+      "kind": "arxiv_recent",
+      "label": "arXiv增量 · 奖励噪声与验证",
+      "query": "(all:\"reinforcement learning\" OR all:reasoning OR all:\"language model\") AND (all:\"noisy reward\" OR all:\"reward corruption\" OR all:\"process supervision\" OR all:\"verifiable reward\" OR all:verifier)",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 1
+    },
+    {
+      "id": "arxiv-recent-reasoning",
+      "kind": "arxiv_recent",
+      "label": "arXiv增量 · 推理课程与自进化",
+      "query": "(all:\"language model\" OR all:reasoning) AND (all:curriculum OR all:\"self-evolution\" OR all:\"self-improvement\" OR all:\"self-play\" OR all:\"test-time reinforcement\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 1
+    },
+    {
+      "id": "arxiv-recent-theory",
+      "kind": "arxiv_recent",
+      "label": "arXiv增量 · 非平稳在线学习理论",
+      "query": "all:\"dynamic regret\" OR all:\"adaptive regret\" OR all:\"non-stationary bandit\" OR all:\"variation budget\"",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 1
+    },
+    {
+      "id": "arxiv-recent-exploration",
+      "kind": "arxiv_recent",
+      "label": "arXiv增量 · 内在动机与自主学习",
+      "query": "all:\"reinforcement learning\" AND (all:\"intrinsic motivation\" OR all:curiosity OR all:\"unsupervised environment design\" OR all:\"automatic domain randomization\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 1
+    },
+    {
+      "id": "openreview-iclr-{year}",
+      "kind": "openreview",
+      "label": "ICLR {year} · OpenReview录用",
+      "venue": "ICLR.cc/{year}/Conference",
+      "year": "{year}",
+      "limit": 500,
+      "priority": 1
+    },
+    {
+      "id": "openreview-icml-{year}",
+      "kind": "openreview",
+      "label": "ICML {year} · OpenReview录用",
+      "venue": "ICML.cc/{year}/Conference",
+      "year": "{year}",
+      "limit": 500,
+      "priority": 1
+    },
+    {
+      "id": "openreview-neurips-{year}",
+      "kind": "openreview",
+      "label": "NeurIPS {year} · OpenReview录用",
+      "venue": "NeurIPS.cc/{year}/Conference",
+      "year": "{year}",
+      "limit": 500,
+      "priority": 1
+    },
+    {
+      "id": "arxiv-frontier-goals",
+      "kind": "arxiv_frontier",
+      "label": "arXiv最新/修订巡查 · 目标条件与自动课程",
+      "query": "all:\"reinforcement learning\" AND (all:curriculum OR all:\"goal-conditioned\" OR all:\"learning progress\" OR all:\"task generation\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "arxiv-frontier-change",
+      "kind": "arxiv_frontier",
+      "label": "arXiv最新/修订巡查 · 非平稳与持续强化学习",
+      "query": "all:\"reinforcement learning\" AND (all:nonstationary OR all:\"non-stationary\" OR all:continual OR all:\"distribution shift\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "arxiv-frontier-feedback",
+      "kind": "arxiv_frontier",
+      "label": "arXiv最新/修订巡查 · 奖励噪声与验证",
+      "query": "(all:\"reinforcement learning\" OR all:reasoning OR all:\"language model\") AND (all:\"noisy reward\" OR all:\"reward corruption\" OR all:\"process supervision\" OR all:\"verifiable reward\" OR all:verifier)",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "arxiv-frontier-reasoning",
+      "kind": "arxiv_frontier",
+      "label": "arXiv最新/修订巡查 · 推理课程与自进化",
+      "query": "(all:\"language model\" OR all:reasoning) AND (all:curriculum OR all:\"self-evolution\" OR all:\"self-improvement\" OR all:\"self-play\" OR all:\"test-time reinforcement\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "arxiv-frontier-theory",
+      "kind": "arxiv_frontier",
+      "label": "arXiv最新/修订巡查 · 非平稳在线学习理论",
+      "query": "all:\"dynamic regret\" OR all:\"adaptive regret\" OR all:\"non-stationary bandit\" OR all:\"variation budget\"",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "arxiv-frontier-exploration",
+      "kind": "arxiv_frontier",
+      "label": "arXiv最新/修订巡查 · 内在动机与自主学习",
+      "query": "all:\"reinforcement learning\" AND (all:\"intrinsic motivation\" OR all:curiosity OR all:\"unsupervised environment design\" OR all:\"automatic domain randomization\")",
+      "page_size": 100,
+      "initial_days": 14,
+      "overlap_days": 7,
+      "priority": 0
+    },
+    {
+      "id": "classic-arxiv-foundations",
+      "kind": "arxiv_seeds",
+      "label": "经典种子 · HER/教师学生/非平稳Bandit",
+      "ids": [
+        "1707.01495",
+        "1707.00183",
+        "1405.3316"
+      ],
+      "priority": 2
+    },
+    {
+      "id": "classic-uvfa",
+      "kind": "publisher_paper",
+      "label": "经典种子 · UVFA 2015",
+      "url": "https://proceedings.mlr.press/v37/schaul15.html",
+      "year": 2015,
+      "identifiers": {
+        "pmlr": "v37/schaul15"
+      },
+      "priority": 2
+    },
+    {
+      "id": "classic-alpgmm",
+      "kind": "publisher_paper",
+      "label": "经典种子 · ALP-GMM 2020",
+      "url": "https://proceedings.mlr.press/v100/portelas20a.html",
+      "year": 2020,
+      "identifiers": {
+        "pmlr": "v100/portelas20a"
+      },
+      "priority": 2
+    },
+    {
+      "id": "acl-{year}.acl",
+      "kind": "acl_xml",
+      "label": "ACL Anthology · {year}.acl",
+      "year": "{year}",
+      "url": "https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/{year}.acl.xml",
+      "priority": 2
+    },
+    {
+      "id": "acl-{year}.emnlp",
+      "kind": "acl_xml",
+      "label": "ACL Anthology · {year}.emnlp",
+      "year": "{year}",
+      "url": "https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/{year}.emnlp.xml",
+      "priority": 2
+    },
+    {
+      "id": "acl-{year}.findings",
+      "kind": "acl_xml",
+      "label": "ACL Anthology · {year}.findings",
+      "year": "{year}",
+      "url": "https://raw.githubusercontent.com/acl-org/acl-anthology/master/data/xml/{year}.findings.xml",
+      "priority": 2
+    },
+    {
+      "id": "ml-journal-frontier",
+      "kind": "crossref_frontier",
+      "label": "Machine Learning · 最新索引巡查",
+      "issn": "1573-0565",
+      "page_size": 100,
+      "priority": 0
+    }
+  ],
+  "max_pages_per_source": 3
+}

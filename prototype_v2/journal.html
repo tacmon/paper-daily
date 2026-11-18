@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我的每日一句 · Paper Daily</title>
+<style>
+:root{--ink:#23352f;--muted:#68776e;--green:#236b52;--line:#dde6dd;--paper:#fffefb;--bg:#f3f5ee}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 "Noto Sans CJK SC",system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:30px 32px 60px}a{color:var(--green)}header{display:flex;justify-content:space-between;gap:16px;font-size:13px}.brand{font-weight:800;letter-spacing:2px}h1{font-size:34px;margin:35px 0 8px;line-height:1.4}h2{font-size:19px;margin:0 0 12px}p{margin:8px 0}.muted{color:var(--muted);font-size:13px}.steps{display:flex;gap:12px;flex-wrap:wrap;margin:23px 0}.steps span{background:#e7eee3;color:#45634f;padding:7px 13px;border-radius:30px;font-size:12px}.selection{width:100%;margin:0 0 20px;padding:12px;border:1px solid var(--line);border-radius:9px;background:var(--paper);font:inherit;color:inherit}.columns{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:25px;min-width:0}label{display:block;font-weight:650;margin:12px 0 7px}textarea{display:block;width:100%;min-height:180px;resize:vertical;border:1px solid #ccd9cd;border-radius:9px;padding:14px;background:white;font:inherit;line-height:1.8;color:inherit}textarea:focus{outline:2px solid #8aac91;outline-offset:2px}textarea[readonly]{background:#f6f7f3}button,.button{display:inline-block;padding:10px 16px;border:1px solid #cad7cb;border-radius:9px;background:white;color:var(--green);font:inherit;font-size:13px;cursor:pointer;text-decoration:none}button:disabled{opacity:.45;cursor:default}.primary{background:var(--green);color:white;border-color:var(--green)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.pending{background:#f0f3eb;border-radius:10px;padding:20px;margin-top:18px}.pending strong{font-size:16px}.message{min-height:26px;white-space:pre-wrap;color:#80522c;font-size:13px;margin:14px 0}.explanation{white-space:pre-wrap;font-size:13px;color:var(--muted)}#history{margin-top:30px;scroll-margin-top:25px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;border-bottom:1px solid var(--line);padding:15px 10px;vertical-align:top}th{color:var(--muted);font-weight:500}td:nth-child(1){white-space:nowrap}td:nth-child(2){width:30%}td:nth-child(3){white-space:pre-wrap;overflow-wrap:anywhere;min-width:180px}details{margin-top:20px}summary{cursor:pointer;color:var(--muted);font-size:12px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.6 system-ui;background:#f4f5ef;padding:12px}#count{font-size:12px;color:var(--muted);font-weight:400}[hidden]{display:none!important}@media(max-width:800px){main{padding:22px 18px}.columns{grid-template-columns:1fr}h1{font-size:27px}.panel{padding:20px}}
+</style></head><body><main>
+<header><span class="brand">PAPER DAILY / 我的每日一句</span><a href="/">返回工作台</a></header>
+<h1>留下你的理解，再让表达更清楚。</h1>
+<p class="muted">原话与润色稿分开保留。你看过、改过并确认后，才成为表格里的最终句。</p>
+<div class="steps"><span>01 写下自己的理解</span><span>02 在 Codex 发送润色任务</span><span>03 对照确认，保存入表</span><a href="#history">查看全部记录 ↓</a></div>
+<label for="paper">这次记录哪篇论文</label><select id="paper" class="selection" disabled></select>
+<div class="columns">
+<section class="panel"><h2>你的原话</h2><p class="muted">一句或几句都可以；还没想明白的地方也可以保留。</p>
+<label for="original">我从这篇论文理解了什么？</label><textarea id="original" maxlength="4000" placeholder="例如：它解决了什么问题？为什么这样做？我认为最重要的边界是什么？" disabled></textarea>
+<div class="actions"><button id="prepare" class="primary" disabled>保留原话，准备润色</button><button id="revise" hidden>改写原话，重新润色</button></div>
+<p id="draftStatus" class="muted"></p><details><summary>查看这篇论文原有的 AI 候选句</summary><p id="reference" class="muted"></p></details></section>
+<section class="panel"><h2>AI 润色与我的确认</h2><div id="empty" class="pending"><strong>先留下你的理解</strong><p class="muted">润色会保留你的意思；如果涉及事实修正，会单独说明。</p></div>
+<div id="handoff" class="pending" hidden><strong>润色任务已备好</strong><p class="muted">打开 Codex 后按一次发送。完成后回到这里，建议会自动出现。无需重新复制论文背景。</p><p><a id="codex" class="button primary">打开 Codex，发送润色任务 ↗</a></p><button id="copy">复制任务到现有会话</button><details><summary>链接不可用时，复制以下文字到 Codex</summary><pre id="prompt"></pre></details><p class="muted">请勿重复发送同一请求；已有两项模型任务运行时，等一个结束再发送。</p></div>
+<div id="review" hidden><label id="finalLabel" for="final">待确认的最终句（可以继续修改）</label><textarea id="final" maxlength="4000"></textarea><p id="explanation" class="explanation"></p><div class="actions"><button id="save" class="primary">确认这句话，保存到表格</button><button id="useOriginal">改用我的原话</button></div></div>
+<p id="reviewStatus" class="muted" aria-live="polite"></p></section></div>
+<div id="message" class="message" role="status" aria-live="polite"></div>
+<section id="history" class="panel"><h2>我的阅读记录 <span id="count"></span></h2><p class="muted">空白只表示尚未填写。每篇一行，同篇修订沿用原行。</p><div class="table-wrap"><table><thead><tr><th>日期</th><th>论文</th><th>我的最终句</th><th>操作</th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted"><a href="/library/reading_log.md">查看原始 Markdown 表格</a> · 原话和建议保存在本机，不自动替你确认。</p></section>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+let entries=[],selected=null,request=null,polling=false,dirtyFinal=false;
+const cacheKey=id=>'paper-daily-journal-draft:'+id;
+const cache=(op,key,value)=>{try{return op==='get'?localStorage.getItem(key):localStorage.setItem(key,value)}catch{return null}};
+async function api(path,data){const response=await fetch(path,data?{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}:{});const result=await response.json();if(!response.ok)throw Error(result.error||'操作失败');return result;}
+function notice(text){$('message').textContent=text;}
+function urlFor(paper,id){const url=new URL(location.href);url.search='';url.searchParams.set('paper',paper);if(id)url.searchParams.set('request',id);url.hash='';return url;}
+function drawHistory(){
+ $('count').textContent=entries.length+' 篇';$('rows').replaceChildren();
+ for(const row of entries){const tr=document.createElement('tr');for(const text of [row.date,row.title,row.final||'尚未填写']){const td=document.createElement('td');td.textContent=text;tr.append(td)}const td=document.createElement('td'),button=document.createElement('button');button.textContent=row.final?'修改':'写总结';button.onclick=()=>selectPaper(row.paper_id);td.append(button);tr.append(td);$('rows').append(tr)}
+}
+async function refreshEntries(){entries=(await api('/api/journal')).entries;drawHistory();}
+function showRequest(value){
+ request=value;$('original').readOnly=!!value;$('prepare').hidden=!!value;$('revise').hidden=!value;
+ $('empty').hidden=!!value;$('handoff').hidden=!value||value.status!=='awaiting_ai';$('review').hidden=!value||!['ready','confirmed'].includes(value.status);
+ $('reviewStatus').textContent='';
+ if(!value)return;
+ $('draftStatus').textContent='原话已保存在本机，与润色稿分开保留。';
+ $('finalLabel').textContent=value.status==='confirmed'?'已保存的最终句':'待确认的最终句（可以继续修改）';
+ $('original').value=value.original;cache('set',cacheKey(value.paper_id),value.original);cache('set',cacheKey(value.paper_id)+':editing','');
+ if(value.status==='awaiting_ai'){$('codex').href=value.handoff.url;$('prompt').textContent=value.handoff.prompt;$('reviewStatus').textContent='等待 Codex 写回建议；返回本页时会自动检查。'}
+ if(value.status==='ready'){$('final').value=value.suggestion;$('explanation').textContent='修改说明：'+value.explanation;dirtyFinal=false;}
+ if(value.status==='confirmed'){$('final').value=value.final;$('explanation').textContent='已确认保存。原话与 AI 建议仍保留。';dirtyFinal=false;$('reviewStatus').textContent='已写入每日一句表格。';}
+ $('final').readOnly=value.status==='confirmed';$('save').disabled=value.status!=='ready';$('useOriginal').disabled=value.status!=='ready';
+}
+async function selectPaper(id,requestId){
+ if(dirtyFinal&&!confirm('这版修改还未保存。确定切换论文？'))return;
+ selected=entries.find(r=>r.paper_id===id)||entries[0];if(!selected){notice('还没有可填写的论文记录。');return;}
+ requestId=cache('get',cacheKey(selected.paper_id)+':editing')==='1'?null:(requestId||selected.latest_request);
+ dirtyFinal=false;$('paper').value=selected.paper_id;$('original').disabled=false;$('prepare').disabled=false;
+ $('original').value=cache('get',cacheKey(selected.paper_id))??selected.final;$('reference').textContent=selected.ai_reference;
+ showRequest(null);notice('');$('draftStatus').textContent='原话草稿会在当前浏览器保留；准备润色后另存到本机。';
+ history.replaceState(null,'',urlFor(selected.paper_id,requestId));
+ if(requestId){try{const r=await api('/api/journal/request/'+requestId);if(r.paper_id!==selected.paper_id)throw Error('请求与论文不对应');showRequest(r);}catch(e){notice(e.message)}}
+}
+$('original').addEventListener('input',()=>{cache('set',cacheKey(selected.paper_id),$('original').value);cache('set',cacheKey(selected.paper_id)+':editing','1');$('draftStatus').textContent='草稿已暂存在当前浏览器；尚未写入最终句。';});
+$('paper').onchange=()=>selectPaper($('paper').value);
+$('prepare').onclick=async()=>{const original=$('original').value;if(!original.trim()){notice('先写下你的理解。');return;}$('prepare').disabled=true;try{const r=await api('/api/journal/request',{paper_id:selected.paper_id,date:selected.date,original,revision:selected.revision});showRequest(r);history.replaceState(null,'',urlFor(selected.paper_id,r.id));notice('原话已保留。请在右侧打开 Codex 并发送任务；还没有写入最终句。');}catch(e){notice(e.message);await refreshEntries();selected=entries.find(r=>r.paper_id===selected.paper_id);}finally{$('prepare').disabled=false}};
+$('revise').onclick=()=>{if(dirtyFinal&&!confirm('这版最终句尚未保存，确定重新润色？'))return;dirtyFinal=false;showRequest(null);cache('set',cacheKey(selected.paper_id)+':editing','1');history.replaceState(null,'',urlFor(selected.paper_id));$('original').focus();};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(request.handoff.prompt);notice('任务已复制。粘贴到一个空闲的 Codex 会话并发送即可。');}catch{notice('未能复制，请展开“链接不可用时”手动复制任务文字。')}};
+$('useOriginal').onclick=()=>{$('final').value=request.original;dirtyFinal=true;};
+$('final').addEventListener('input',()=>{dirtyFinal=true});
+$('save').onclick=async()=>{$('save').disabled=true;try{const result=await api('/api/journal/confirm',{id:request.id,revision:request.revision,final:$('final').value});showRequest(result);await refreshEntries();selected=entries.find(r=>r.paper_id===selected.paper_id);notice('已保存你的最终句。原话与润色稿也保留在本机。');}catch(e){notice(e.message);$('save').disabled=false}};
+async function checkProposal(){if(polling||!request||request.status!=='awaiting_ai'||document.hidden)return;polling=true;const id=request.id;try{const next=await api('/api/journal/request/'+id);if(request?.id===id&&next.status!=='awaiting_ai'){showRequest(next);notice('润色稿已收到。请对照原话，确认或修改后再保存。');}}catch(e){$('reviewStatus').textContent='暂时无法检查建议，原话已保存。'+e.message}finally{polling=false}}
+setInterval(checkProposal,5000);document.addEventListener('visibilitychange',checkProposal);
+window.addEventListener('beforeunload',event=>{if(dirtyFinal){event.preventDefault();event.returnValue=''}});
+(async()=>{try{await refreshEntries();for(const row of entries){const option=document.createElement('option');option.value=row.paper_id;option.textContent=row.date+' · '+row.title;$('paper').append(option)}$('paper').disabled=!entries.length;const query=new URLSearchParams(location.search);await selectPaper(query.get('paper'),query.get('request'));}catch(e){notice('读取记录失败：'+e.message)}})();
+</script></main></body></html>

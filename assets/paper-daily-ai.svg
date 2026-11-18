@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <title>论文日报 · 阅读中控</title>
+  <desc>靛蓝底色上的书页、晨光和播放符号</desc>
+  <defs>
+    <clipPath id="tile"><rect x="16" y="16" width="480" height="480" rx="108"/></clipPath>
+    <linearGradient id="bg" x2="0.8" y2="1"><stop stop-color="#677BF4"/><stop offset="1" stop-color="#3045BD"/></linearGradient>
+    <linearGradient id="page" x2="0" y2="1"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#E9EDFF"/></linearGradient>
+    <linearGradient id="sun" x2="0" y2="1"><stop stop-color="#FFE7AC"/><stop offset="1" stop-color="#FFC978"/></linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#bg)"/>
+  <path d="M36 186C124 40 335 1 466 100" clip-path="url(#tile)" stroke="#FFF" stroke-opacity=".07" stroke-width="70" fill="none"/>
+  <circle cx="256" cy="191" r="64" fill="url(#sun)"/>
+  <path d="M256 98V80M184 117L171 104M328 117L341 104M151 175H135M361 175H377" fill="none" stroke="#FFDE99" stroke-width="12" stroke-linecap="round"/>
+  <path d="M92 227Q172 201 256 244Q340 201 420 227V387Q333 364 256 405Q179 364 92 387Z" fill="#142A91" opacity=".25"/>
+  <path d="M96 213Q171 188 256 233Q341 188 416 213V367Q333 343 256 386Q179 343 96 367Z" fill="url(#page)"/>
+  <path d="M256 233V386" fill="none" stroke="#C6D0FA" stroke-width="7"/>
+  <path d="M129 254Q174 249 217 268M129 288Q174 283 217 302M129 322Q163 318 195 328" fill="none" stroke="#8799DF" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="338" cy="288" r="44" fill="#DCE4FF"/>
+  <path d="M328 266Q325 264 325 269V307Q325 312 329 309L357 291Q362 288 357 285Z" fill="#3E57C8"/>
+</svg>
