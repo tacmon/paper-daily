@@ -4,10 +4,19 @@
   "daily_start": "06:00",
   "daily_papers": 1,
   "language": "zh-CN",
-  "video_minutes": [10, 15],
+  "video_minutes": [
+    10,
+    15
+  ],
   "max_concurrent_model_calls": 2,
   "schedule_requires_host_setup": true,
   "zotero_collection_name": "Paper Daily by AI",
   "browser_notes_are_snapshots": true,
-  "description": "工作流偏好；此文件不会创建定时任务，也不保存密钥。当前日期归档采用Asia/Shanghai，改时区还需调整paper_library.py的TIMEZONE。"
+  "description": "工作流偏好；此文件不会创建定时任务，也不保存密钥。当前日期归档采用Asia/Shanghai，改时区还需调整paper_library.py的TIMEZONE。",
+  "desktop_notification": {
+    "late_report_alert": {
+      "enabled": false,
+      "after": "09:00"
+    }
+  }
 }

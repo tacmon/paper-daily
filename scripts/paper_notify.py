@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import fcntl
 import json
 import os
@@ -63,6 +64,47 @@ def available_papers(root=ROOT):
     """Manual browsing includes dismissed reports, but never future publications."""
     return [item for item in pending_papers(root, include_acknowledged=True)
             if item['date'] <= library.today()]
+
+
+def pending_delivery_notice(root=ROOT, now=None, include_acknowledged=False):
+    """Observe a missed delivery target, never infer agent/process state or run AI."""
+    config_path = root / 'config.json'
+    try:
+        config = library.read_json(config_path) if config_path.exists() else {}
+        setting = config.get('desktop_notification', {}).get('late_report_alert', {})
+        if not setting.get('enabled', False):
+            return None
+        zone = ZoneInfo(config.get('timezone', 'Asia/Shanghai'))
+        now = datetime.now(zone) if now is None else now.astimezone(zone)
+        after = setting.get('after', '09:00')
+        deadline = datetime.combine(now.date(), datetime.strptime(after, '%H:%M').time(), zone)
+    except (OSError, ValueError, KeyError, AttributeError, TypeError) as exc:
+        print('Delivery notice configuration unavailable: ' + str(exc), file=sys.stderr)
+        return None
+    if now < deadline:
+        return None
+    day = now.date().isoformat()
+    # Reuse the exact completion gate, even when its normal reminder was dismissed.
+    if pending_papers(root, date=day, include_acknowledged=True):
+        return None
+    path = root / '.notifications' / ('delivery-' + day + '.json')
+    try:
+        state = library.read_json(path) if path.exists() else {}
+        if not isinstance(state, dict):
+            state = {}
+    except (OSError, ValueError):
+        state = {}
+    if state.get('acknowledged_at') and not include_acknowledged:
+        return None
+    return {'kind': 'delivery_delay', 'date': day, 'after': after,
+            'timezone': str(zone), 'state_path': path, 'state': state}
+
+
+def save_delivery_state(item, **updates):
+    state = dict(item['state'])
+    state.update(schema_version=1, kind='delivery_delay', date=item['date'], **updates)
+    library.atomic_json(item['state_path'], state)
+    item['state'] = state
 
 
 def open_research_action(item, kind):
@@ -191,6 +233,12 @@ def run_gui(args):
             greeting = self.label('尊敬的主人，今日本 AI 为您推荐的论文已准备就绪。' if item['date'] == library.today() else '尊敬的主人，本 AI 为您推荐的这一期论文已准备就绪。', 'greeting')
             greeting.set_margin_top(9); greeting.set_margin_bottom(23)
             outer.pack_start(greeting, False, False, 0)
+            if args.open:
+                notice = pending_delivery_notice(include_acknowledged=True)
+                if notice:
+                    status = self.label(f"{notice['date']} 的完整汇报尚未就绪；下面是最近一期。", 'error', wrap=True)
+                    status.set_margin_bottom(12)
+                    outer.pack_start(status, False, False, 0)
             card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=13)
             card.get_style_context().add_class('paper')
             chinese_title = str(item['data'].get('title_zh') or '').strip()
@@ -340,6 +388,97 @@ def run_gui(args):
             self.win.destroy(); self.on_close()
             return True
 
+    class DeliveryNotice:
+        def __init__(self, item, on_close):
+            self.item, self.on_close = item, on_close
+            self.handled = False
+            self.was_shown = False
+            self.win = Gtk.Window(title='论文日报 · 今日进度提醒')
+            self.win.set_icon_name('paper-daily-ai')
+            self.win.set_default_size(620, -1)
+            self.win.set_resizable(False)
+            self.win.set_position(Gtk.WindowPosition.CENTER)
+            self.win.set_keep_above(not args.open)
+            header = Gtk.HeaderBar(show_close_button=True)
+            header.set_title('论文日报 · 今日进度')
+            self.win.set_titlebar(header)
+            self.win.connect('delete-event', lambda *_: self.close())
+            self.win.connect('key-press-event', self.keypress)
+            body = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=18)
+            for side in ('top', 'bottom', 'start', 'end'):
+                getattr(body, 'set_margin_' + side)(28)
+            self.win.add(body)
+            for text, css in [
+                ('PAPER DAILY  /  ' + item['date'], 'eyebrow'),
+                ('今日汇报尚未就绪', 'headline'),
+                (f"已到 {item['after']}（{item['timezone']}），还未发现今天通过完整验收的论文汇报。", 'greeting'),
+                ('可能仍在制作，也可能尚未启动或执行中断。此提醒只检查本地成果，不能判断具体原因。', 'location'),
+                ('你可以继续阅读已有材料。今天的汇报完成后，仍会单独提醒。', 'location'),
+            ]:
+                label = Reminder.label(text, css, wrap=True)
+                label.set_max_width_chars(46)
+                body.pack_start(label, False, False, 0)
+            actions = Gtk.Box(spacing=12)
+            for text, kind in [('打开阅读中控', 'control'), ('打开论文库', 'folder')]:
+                button = Gtk.Button(label=text)
+                button.get_style_context().add_class('secondary')
+                button.connect('clicked', lambda _b, action=kind: self.open(action))
+                actions.pack_start(button, True, True, 0)
+            body.pack_start(actions, False, False, 0)
+            self.error = Reminder.label('', 'error', wrap=True)
+            body.pack_start(self.error, False, False, 0)
+            close = Gtk.Button(label='关闭窗口' if args.open else '我知道了，关闭提醒')
+            close.get_style_context().add_class('quiet')
+            close.connect('clicked', lambda *_: self.close())
+            body.pack_start(close, False, False, 0)
+
+        def keypress(self, _win, event):
+            if event.keyval == Gdk.KEY_Escape:
+                return self.close()
+            return False
+
+        def open(self, kind):
+            try:
+                if kind == 'control':
+                    subprocess.Popen(['/usr/bin/python3', str(ROOT / 'scripts/paper_notify.py'), '--open'],
+                                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                     stderr=subprocess.DEVNULL, start_new_session=True)
+                else:
+                    Gio.AppInfo.launch_default_for_uri(ROOT.as_uri(), self.win.get_display().get_app_launch_context())
+                self.error.set_text('')
+            except Exception as exc:
+                self.error.set_text('暂时无法打开：' + str(exc))
+
+        def show(self):
+            if self.win.get_visible():
+                return
+            self.win.show_all()
+            self.win.present()
+            if not read_only:
+                save_delivery_state(self.item, status='displayed', displayed_at=library.timestamp())
+            if not self.was_shown:
+                self.was_shown = True
+                print(json.dumps({'status': 'delivery_notice_displayed', 'date': self.item['date'],
+                                  'manual': args.open}), flush=True)
+
+        def retire(self):
+            """Expired/resolved notices never acknowledge or hide a completed paper."""
+            self.handled = True
+            self.win.destroy()
+
+        def close(self):
+            if self.handled:
+                return True
+            if not read_only:
+                try:
+                    save_delivery_state(self.item, status='acknowledged', acknowledged_at=library.timestamp())
+                except OSError as exc:
+                    print('Could not persist delivery notice dismissal: ' + str(exc), flush=True)
+                session_dismissed.add(('delivery_delay', self.item['date']))
+            self.retire()
+            self.on_close()
+            return True
+
     window = [None]
     def on_close():
         window[0] = None
@@ -357,6 +496,11 @@ def run_gui(args):
                 if window[0]:
                     window[0].win.hide()
                 return True
+            if isinstance(window[0], DeliveryNotice):
+                current = pending_delivery_notice(include_acknowledged=True)
+                if current is None or current['date'] != window[0].item['date']:
+                    window[0].retire()
+                    window[0] = None
             if window[0]:
                 window[0].show()
                 return True
@@ -369,6 +513,11 @@ def run_gui(args):
             elif args.preview:
                 print('No complete paper available for preview.', flush=True)
                 Gtk.main_quit()
+            else:
+                notice = pending_delivery_notice()
+                if notice and ('delivery_delay', notice['date']) not in session_dismissed:
+                    window[0] = DeliveryNotice(notice, on_close)
+                    window[0].show()
         except Exception as exc:
             print('Notification check failed: ' + str(exc), flush=True)
         return True
@@ -386,6 +535,10 @@ def run_gui(args):
             papers = available_papers()
             if papers:
                 window[0] = Reminder(papers[0], on_close)
+                app.add_window(window[0].win)
+                window[0].show()
+            elif (notice := pending_delivery_notice(include_acknowledged=True)):
+                window[0] = DeliveryNotice(notice, on_close)
                 app.add_window(window[0].win)
                 window[0].show()
             else:
